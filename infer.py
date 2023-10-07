@@ -1,8 +1,8 @@
 import torch
 from nvitop import select_devices
 
-from runner import Runner
-from utils import get_train_val_test_dataloaders
+from src.runner import Runner
+from src.utils import get_train_val_test_dataloaders
 
 if __name__ == "__main__":
     device = torch.device(

@@ -4,8 +4,8 @@ import torchvision
 from nvitop import select_devices
 import torch.nn as nn
 
-from runner import Runner
-from utils import get_train_val_test_dataloaders
+from src.runner import Runner
+from src.utils import get_train_val_test_dataloaders
 
 SIZE_H = SIZE_W = 96
 NUM_CLASSES = 2
