@@ -1,1 +1,1 @@
-# mlops-project
+# cats-vs-dogs

@@ -1,0 +1,5 @@
+data
+data.zip
+checkpoints
+*.pyc
+__pycache__
