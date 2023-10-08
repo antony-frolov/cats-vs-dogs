@@ -1,10 +1,11 @@
 import torch
 import torch.nn as nn
 import torchvision
-from cats_vs_docs.runner import Runner
-from cats_vs_docs.utils import get_train_val_test_dataloaders
 from nvitop import select_devices
 from torchinfo import summary
+
+from cats_vs_dogs.runner import Runner
+from cats_vs_dogs.utils import get_train_val_test_dataloaders
 
 SIZE_H = SIZE_W = 96
 NUM_CLASSES = 2
