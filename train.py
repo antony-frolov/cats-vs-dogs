@@ -1,11 +1,10 @@
 import torch
-from torchinfo import summary
-import torchvision
-from nvitop import select_devices
 import torch.nn as nn
-
+import torchvision
 from cats_vs_docs.runner import Runner
 from cats_vs_docs.utils import get_train_val_test_dataloaders
+from nvitop import select_devices
+from torchinfo import summary
 
 SIZE_H = SIZE_W = 96
 NUM_CLASSES = 2
@@ -33,17 +32,13 @@ def get_dense_model():
 
 
 def get_resnet_model():
-    model = torchvision.models.resnet18(
-        weights=torchvision.models.ResNet18_Weights.IMAGENET1K_V1
-    )
+    model = torchvision.models.resnet18(weights=torchvision.models.ResNet18_Weights.IMAGENET1K_V1)
     model.fc = nn.Linear(model.fc.in_features, NUM_CLASSES)
     return model
 
 
 if __name__ == "__main__":
-    device = torch.device(
-        select_devices(sort=True)[0] if torch.cuda.is_available() else "cpu"
-    )
+    device = torch.device(select_devices(sort=True)[0] if torch.cuda.is_available() else "cpu")
 
     train_dataloader, val_dataloader, test_dataloader = get_train_val_test_dataloaders()
 

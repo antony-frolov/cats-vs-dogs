@@ -1,10 +1,11 @@
-import torch
-from torchvision import transforms
-import torchvision
-from tqdm.auto import tqdm
-import requests
 import zipfile
 from pathlib import Path
+
+import requests
+import torch
+import torchvision
+from torchvision import transforms
+from tqdm.auto import tqdm
 
 DATA_DIR = Path("data")
 NUM_WORKERS = 4
@@ -39,9 +40,7 @@ def download_data(url: str, fname: str, chunk_size=1024):
 
 
 def get_dataset(folder):
-    return torchvision.datasets.ImageFolder(
-        DATA_DIR.joinpath(folder), transform=transformer
-    )
+    return torchvision.datasets.ImageFolder(DATA_DIR.joinpath(folder), transform=transformer)
 
 
 def get_dataloader(dataset, shuffle=False):
@@ -55,9 +54,7 @@ def get_dataloader(dataset, shuffle=False):
 
 def get_train_val_test_dataloaders():
     if not DATA_DIR.exists():
-        download_data(
-            "https://www.dropbox.com/s/gqdo90vhli893e0/data.zip?dl=1", "data.zip"
-        )
+        download_data("https://www.dropbox.com/s/gqdo90vhli893e0/data.zip?dl=1", "data.zip")
         zipfile.ZipFile("data.zip").extractall(DATA_DIR)
     return (
         get_dataloader(get_dataset("train_11k"), shuffle=True),

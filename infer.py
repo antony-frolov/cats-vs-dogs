@@ -5,9 +5,7 @@ from cats_vs_dogs.runner import Runner
 from cats_vs_dogs.utils import get_train_val_test_dataloaders
 
 if __name__ == "__main__":
-    device = torch.device(
-        select_devices(sort=True)[0] if torch.cuda.is_available() else "cpu"
-    )
+    device = torch.device(select_devices(sort=True)[0] if torch.cuda.is_available() else "cpu")
 
     _, val_dataloader, test_dataloader = get_train_val_test_dataloaders()
 

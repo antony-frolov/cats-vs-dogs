@@ -1,11 +1,12 @@
-from collections import defaultdict
-from tqdm.auto import tqdm
 import timeit
-import torch
-import numpy as np
-import torch.nn.functional as F
-from sklearn.metrics import f1_score, accuracy_score
+from collections import defaultdict
 from pathlib import Path
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from sklearn.metrics import accuracy_score, f1_score
+from tqdm.auto import tqdm
 
 
 class Runner:
@@ -70,9 +71,7 @@ class Runner:
 
         assert len(labels) > 0, print("Label list is empty")
         assert len(scores) > 0, print("Score list is empty")
-        assert len(labels) == len(scores), print(
-            "Label and score lists are of different size"
-        )
+        assert len(labels) == len(scores), print("Label and score lists are of different size")
 
         self.metrics = {
             "loss": np.mean(self.events[self._phase_name]["loss"]),
@@ -108,9 +107,7 @@ class Runner:
                 self.optimizer.step()
                 self.optimizer.zero_grad()
 
-        self.log_dict[self._phase_name].append(
-            np.mean(self.events[self._phase_name]["loss"])
-        )
+        self.log_dict[self._phase_name].append(np.mean(self.events[self._phase_name]["loss"]))
 
         if output_log:
             self.output_log()
@@ -126,9 +123,7 @@ class Runner:
             self._phase_name = "train"
             self._run_epoch(train_dataloader, train_phase=True)
 
-            print(
-                f"epoch {self.epoch:3d}/{n_epochs:3d} took {timeit.default_timer() - start_time:.2f}s"
-            )
+            print(f"epoch {self.epoch:3d}/{n_epochs:3d} took {timeit.default_timer() - start_time:.2f}s")
 
             self._phase_name = "val"
             self.validate(val_dataloader)
