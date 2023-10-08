@@ -3,6 +3,7 @@ from collections import defaultdict
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn.functional as F
 from sklearn.metrics import accuracy_score, f1_score
@@ -48,16 +49,17 @@ class Runner:
     def run_criterion(self, labels):
         logits = self.output["logits"]
 
-        loss = torch.nn.functional.cross_entropy(logits, labels)
+        loss = torch.nn.functional.cross_entropy(logits, labels, reduction="none")
 
-        scores = F.softmax(logits, 1).detach().cpu().numpy()[:, 1].tolist()
-        labels = labels.detach().cpu().numpy().ravel().tolist()
+        scores = F.softmax(logits, 1)[:, 1]
+        predictions = logits.argmax(axis=-1)
 
-        self.events[self._phase_name]["loss"].append(loss.detach().cpu().numpy())
-        self.events[self._phase_name]["scores"].extend(scores)
-        self.events[self._phase_name]["labels"].extend(labels)
+        self.events[self._phase_name]["loss"].extend(loss.tolist())
+        self.events[self._phase_name]["scores"].extend(scores.tolist())
+        self.events[self._phase_name]["labels"].extend(labels.tolist())
+        self.events[self._phase_name]["predictions"].extend(predictions.tolist())
 
-        return loss
+        return loss.mean()
 
     def save_checkpoint(self):
         val_accuracy = self.metrics["accuracy"]
@@ -66,17 +68,17 @@ class Runner:
             torch.save(self.model, open(self.ckpt_path, "wb"))
 
     def output_log(self):
-        scores = np.array(self.events[self._phase_name]["scores"])
         labels = np.array(self.events[self._phase_name]["labels"])
+        predictions = np.array(self.events[self._phase_name]["predictions"])
 
         assert len(labels) > 0, print("Label list is empty")
-        assert len(scores) > 0, print("Score list is empty")
-        assert len(labels) == len(scores), print("Label and score lists are of different size")
+        assert len(predictions) > 0, print("Prediction list is empty")
+        assert len(labels) == len(predictions), print("Label and prediction lists are of different size")
 
         self.metrics = {
             "loss": np.mean(self.events[self._phase_name]["loss"]),
-            "accuracy": accuracy_score(labels, np.int32(scores > 0.5)),
-            "f1": f1_score(labels, np.int32(scores > 0.5)),
+            "accuracy": accuracy_score(labels, predictions),
+            "f1": f1_score(labels, predictions),
         }
         print(f"{self._phase_name}: ", end="")
         print(" | ".join([f"{k}: {v:.4f}" for k, v in self.metrics.items()]))
@@ -129,9 +131,16 @@ class Runner:
             self.validate(val_dataloader)
             self.save_checkpoint()
 
-    @torch.no_grad()  # we do not need to save gradients during validation
+    @torch.no_grad()
     def validate(self, dataloader, phase_name="val"):
         self._phase_name = phase_name
         self._reset_events(phase_name)
         self._run_epoch(dataloader, train_phase=False, output_log=True)
         return self.metrics
+
+    @torch.no_grad()
+    def predict(self, dataloader, phase_name="test"):
+        self._phase_name = phase_name
+        self._reset_events(phase_name)
+        self._run_epoch(dataloader, train_phase=False, output_log=True)
+        return pd.DataFrame(self.events[self._phase_name])

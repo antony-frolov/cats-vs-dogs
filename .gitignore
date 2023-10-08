@@ -3,3 +3,4 @@ data.zip
 checkpoints
 *.pyc
 __pycache__
+predictions
